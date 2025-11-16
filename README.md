@@ -1,312 +1,373 @@
-# OsitoPolar Microservices Infrastructure
+# 🐻 OsitoPolar - Microservices Architecture
 
-This repository contains the Docker Compose orchestration and infrastructure configuration for the OsitoPolar microservices platform.
+Plataforma de gestión de equipamiento de refrigeración industrial basada en microservicios.
 
-## Architecture Overview
+## 📋 Tabla de Contenidos
 
-The platform consists of 9 containerized services:
+- [Arquitectura](#-arquitectura)
+- [Requisitos Previos](#-requisitos-previos)
+- [Instalación Rápida](#-instalación-rápida)
+- [Instalación Manual](#-instalación-manual)
+- [Servicios Disponibles](#-servicios-disponibles)
+- [Comandos Útiles](#-comandos-útiles)
+- [Tecnologías](#-tecnologías)
 
-### Services
+---
 
-1. **API Gateway** (Port 8080) - Ocelot reverse proxy, single entry point
-2. **IAM Service** (Port 5001) - Identity & Access Management, authentication, JWT tokens
-3. **Profiles Service** (Port 5002) - Owner and Provider profile management
-4. **Equipment Service** (Port 5003) - Equipment and rental equipment management
-5. **Work Orders Service** (Port 5004) - Maintenance work orders and technicians
-6. **Service Requests Service** (Port 5005) - Marketplace service requests
-7. **Subscriptions Service** (Port 5006) - Subscription plans and Stripe payments
-8. **Notifications Service** (Port 5007) - Email notifications via MailerSend
-9. **Analytics Service** (Port 5008) - Business intelligence and reporting
+## 🏗 Arquitectura
 
-### Infrastructure
+Esta aplicación está dividida en **9 microservicios**:
 
-- **MySQL 8.0** - 8 isolated databases (one per microservice)
-- **Docker Network** - Private bridge network for inter-service communication
-- **Persistent Volumes** - MySQL data persistence
-
-## Prerequisites
-
-- **Docker Desktop** - Latest version
-- **Docker Compose** - v3.8 or higher
-- **.NET 9.0 SDK** - For local development (optional)
-- **Git** - For version control
-
-## Quick Start
-
-### 1. Clone and Setup
-
-```bash
-cd C:\Users\josep\RiderProjects\Microservicios\OsitoPolar.Infrastructure
+```
+┌─────────────────────────────────────────────────────────────┐
+│                      API Gateway (Ocelot)                    │
+│                     http://localhost:8080                    │
+└──────────────────────────┬──────────────────────────────────┘
+                           │
+        ┌──────────────────┼──────────────────┐
+        │                  │                  │
+        ▼                  ▼                  ▼
+┌──────────────┐   ┌──────────────┐   ┌──────────────┐
+│ IAM Service  │   │   Profiles   │   │  Equipment   │
+│   :5001      │   │    :5002     │   │    :5003     │
+└──────────────┘   └──────────────┘   └──────────────┘
+        │                  │                  │
+        └──────────────────┼──────────────────┘
+                           │
+        ┌──────────────────┼──────────────────┐
+        │                  │                  │
+        ▼                  ▼                  ▼
+┌──────────────┐   ┌──────────────┐   ┌──────────────┐
+│ WorkOrders   │   │ ServiceReq   │   │Subscriptions │
+│   :5004      │   │    :5005     │   │    :5006     │
+└──────────────┘   └──────────────┘   └──────────────┘
+        │                  │                  │
+        └──────────────────┼──────────────────┘
+                           │
+        ┌──────────────────┴──────────────────┐
+        │                                     │
+        ▼                                     ▼
+┌──────────────┐                     ┌──────────────┐
+│Notifications │                     │  Analytics   │
+│   :5007      │                     │    :5008     │
+└──────────────┘                     └──────────────┘
+        │
+        └────────────────┐
+                         ▼
+                 ┌──────────────┐
+                 │  RabbitMQ    │
+                 │   :5672      │
+                 │   :15672     │
+                 └──────────────┘
 ```
 
-### 2. Configure Environment Variables
+**Comunicación:**
+- **Síncrona**: HTTP/REST entre servicios
+- **Asíncrona**: RabbitMQ + MassTransit para eventos
+
+---
+
+## 🔧 Requisitos Previos
+
+Antes de comenzar, asegúrate de tener instalado:
+
+- ✅ **Git** - [Descargar](https://git-scm.com/)
+- ✅ **Docker Desktop** - [Descargar](https://www.docker.com/products/docker-desktop/)
+- ✅ **MySQL 8.0** - [Descargar](https://dev.mysql.com/downloads/installer/)
+- ✅ **Acceso a la organización** `Inteligencia-Artesanal-FunArqui` en GitHub
+
+### Configuración de MySQL
+
+Asegúrate de que MySQL esté corriendo en:
+- **Host**: `localhost`
+- **Puerto**: `3306`
+- **Usuario**: `root`
+- **Contraseña**: `12345678`
+
+---
+
+## 🚀 Instalación Rápida
+
+### Windows (PowerShell)
+
+```powershell
+# 1. Clonar el repositorio de infraestructura
+git clone https://github.com/Inteligencia-Artesanal-FunArqui/OsitoPolar-Infrastructure.git
+cd OsitoPolar-Infrastructure
+
+# 2. Ejecutar script de setup automático
+.\setup.ps1
+```
+
+El script automáticamente:
+1. ✅ Verifica requisitos (Git, Docker, MySQL)
+2. ✅ Clona todos los repositorios de microservicios
+3. ✅ Crea las bases de datos necesarias
+4. ✅ Construye y levanta los contenedores Docker
+
+---
+
+## 📝 Instalación Manual
+
+Si prefieres hacerlo manualmente o el script falla:
+
+### Paso 1: Clonar todos los repositorios
 
 ```bash
-# Copy the example file
-cp .env.example .env
+# Crear carpeta base
+mkdir Microservicios
+cd Microservicios
 
-# Edit .env and fill in your credentials
+# Clonar repositorio de infraestructura
+git clone https://github.com/Inteligencia-Artesanal-FunArqui/OsitoPolar-Infrastructure.git
+
+# Clonar microservicios (IMPORTANTE: usar estos nombres)
+git clone https://github.com/Inteligencia-Artesanal-FunArqui/OsitoPolar.Shared.Events.git OsitoPolar.Shared.Events
+git clone https://github.com/Inteligencia-Artesanal-FunArqui/BC-IAM.git OsitoPolar.IAM.Service
+git clone https://github.com/Inteligencia-Artesanal-FunArqui/BC-Profiles.git OsitoPolar.Profiles.Service
+git clone https://github.com/Inteligencia-Artesanal-FunArqui/BC-Equipment.git OsitoPolar.Equipment.Service
+git clone https://github.com/Inteligencia-Artesanal-FunArqui/BC-WorkOrders.git OsitoPolar.WorkOrders.Service
+git clone https://github.com/Inteligencia-Artesanal-FunArqui/BC-ServiceRequest.git OsitoPolar.ServiceRequests.Service
+git clone https://github.com/Inteligencia-Artesanal-FunArqui/BC-Subscriptions.git OsitoPolar.Subscriptions.Service
+git clone https://github.com/Inteligencia-Artesanal-FunArqui/BC-Notifications.git OsitoPolar.Notifications.Service
+git clone https://github.com/Inteligencia-Artesanal-FunArqui/BC-Analytics.git OsitoPolar.Analytics.Service
+git clone https://github.com/Inteligencia-Artesanal-FunArqui/OsitoPolar-Api-Gateway.git OsitoPolar.ApiGateway
+```
+
+### Paso 2: Verificar estructura de carpetas
+
+Tu estructura debe verse así:
+
+```
+📁 Microservicios/
+├── 📁 OsitoPolar-Infrastructure/
+│   ├── docker-compose.yml
+│   ├── setup.ps1
+│   ├── .env.example
+│   ├── .env (tu archivo local, NO se sube)
+│   ├── .gitignore
+│   └── README.md
+├── 📁 OsitoPolar.Shared.Events/
+├── 📁 OsitoPolar.IAM.Service/
+├── 📁 OsitoPolar.Profiles.Service/
+├── 📁 OsitoPolar.Equipment.Service/
+├── 📁 OsitoPolar.WorkOrders.Service/
+├── 📁 OsitoPolar.ServiceRequests.Service/
+├── 📁 OsitoPolar.Subscriptions.Service/
+├── 📁 OsitoPolar.Notifications.Service/
+├── 📁 OsitoPolar.Analytics.Service/
+└── 📁 OsitoPolar.ApiGateway/
+```
+
+### Paso 3: Configurar variables de entorno
+
+```bash
+cd OsitoPolar-Infrastructure
+
+# Copiar el archivo de ejemplo
+copy .env.example .env
+
+# Editar .env con tus credenciales
 notepad .env
 ```
 
-Required variables:
-- `MYSQL_ROOT_PASSWORD` - MySQL root password
-- `JWT_SECRET` - JWT token secret
-- `STRIPE_SECRET_KEY` - Stripe secret key
-- `STRIPE_PUBLISHABLE_KEY` - Stripe publishable key
-- `MAILERSEND_USERNAME` - MailerSend SMTP username
-- `MAILERSEND_PASSWORD` - MailerSend SMTP password
-- `MAILERSEND_FROM_EMAIL` - From email address
+**Configuración mínima requerida** en `.env`:
+- `MYSQL_PASSWORD`: Tu contraseña de MySQL (si es diferente de `12345678`)
 
-### 3. Run the Stack
+**Configuración opcional** (para probar funcionalidades específicas):
+- `MAILERSEND_SMTP_USERNAME`: Tu username de MailerSend (para emails)
+- `MAILERSEND_SMTP_PASSWORD`: Tu password de MailerSend (para emails)
+- `MAILERSEND_FROM_EMAIL`: Tu email de MailerSend (para emails)
+- `STRIPE_SECRET_KEY`: Tu key de Stripe (para pagos)
 
-#### Option A: Using the Script (Recommended)
+### Paso 4: Crear bases de datos
 
-```powershell
-.\test-local.ps1
+Conectarse a MySQL y ejecutar:
+
+```sql
+CREATE DATABASE ositopolar_iam;
+CREATE DATABASE ositopolar_profiles;
+CREATE DATABASE ositopolar_equipment;
+CREATE DATABASE ositopolar_workorders;
+CREATE DATABASE ositopolar_servicerequests;
+CREATE DATABASE ositopolar_subscriptions;
+CREATE DATABASE ositopolar_notifications;
+CREATE DATABASE ositopolar_analytics;
 ```
 
-This script will:
-- Verify Docker is running
-- Build all service images
-- Start all containers
-- Wait for health checks
-- Display access information
-
-#### Option B: Manual Docker Compose
+### Paso 5: Levantar los servicios
 
 ```bash
-# Build images
-docker-compose build
+cd OsitoPolar-Infrastructure
+docker-compose up -d --build
+```
 
-# Start services
+La primera vez tomará varios minutos (descarga de imágenes base y compilación).
+
+---
+
+## 🌐 Servicios Disponibles
+
+Una vez levantados los contenedores, puedes acceder a:
+
+| Servicio | URL | Descripción |
+|----------|-----|-------------|
+| **API Gateway** | http://localhost:8080/swagger | Punto de entrada unificado |
+| **IAM Service** | http://localhost:5001/swagger | Autenticación y autorización |
+| **Profiles Service** | http://localhost:5002/swagger | Gestión de perfiles de usuario |
+| **Equipment Service** | http://localhost:5003/swagger | Gestión de equipamiento |
+| **WorkOrders Service** | http://localhost:5004/swagger | Órdenes de trabajo |
+| **ServiceRequests** | http://localhost:5005/swagger | Solicitudes de servicio |
+| **Subscriptions** | http://localhost:5006/swagger | Suscripciones y pagos |
+| **Notifications** | http://localhost:5007/swagger | Notificaciones email/in-app |
+| **Analytics** | http://localhost:5008/swagger | Análisis y reportes |
+| **RabbitMQ UI** | http://localhost:15672 | Gestión de mensajería |
+
+### Credenciales RabbitMQ:
+- **Usuario**: `ositopolar`
+- **Contraseña**: `OsitoPolar2024!`
+
+---
+
+## 📦 Comandos Útiles
+
+### Docker Compose
+
+```bash
+# Levantar servicios (primera vez o después de cambios en código)
+docker-compose up -d --build
+
+# Levantar servicios (sin rebuild)
 docker-compose up -d
 
-# View logs
-docker-compose logs -f
-```
-
-### 4. Access the Services
-
-Once all services are running:
-
-- **API Gateway**: http://localhost:8080
-- **IAM Service**: http://localhost:5001/swagger
-- **Profiles Service**: http://localhost:5002/swagger
-- **Equipment Service**: http://localhost:5003/swagger
-- **Work Orders Service**: http://localhost:5004/swagger
-- **Service Requests Service**: http://localhost:5005/swagger
-- **Subscriptions Service**: http://localhost:5006/swagger
-- **Notifications Service**: http://localhost:5007/swagger
-- **Analytics Service**: http://localhost:5008/swagger
-
-## Service Communication
-
-### Phase 2 - HTTP Communication
-
-Services communicate via HTTP using Anti-Corruption Layer (ACL) facades:
-
-```
-IAM Service → Profiles, Subscriptions, Notifications
-Profiles Service → Subscriptions, Notifications
-Equipment Service → Profiles, Notifications
-Work Orders Service → Profiles, Equipment, Notifications
-Service Requests → Profiles, Equipment, Work Orders, Notifications
-Analytics Service → Profiles, Equipment, Work Orders, Subscriptions
-```
-
-### Phase 3 - API Gateway
-
-Frontend applications access all services through the API Gateway on port 8080:
-
-```
-Frontend → http://localhost:8080/api/v1/authentication/* → IAM Service (5001)
-Frontend → http://localhost:8080/api/v1/profiles/* → Profiles Service (5002)
-Frontend → http://localhost:8080/api/v1/equipment/* → Equipment Service (5003)
-...etc
-```
-
-## Database Structure
-
-Each microservice has its own isolated database:
-
-1. `ositopolar_iam` - Users, roles, permissions
-2. `ositopolar_profiles` - Owners, providers
-3. `ositopolar_equipment` - Equipment, rental equipment
-4. `ositopolar_workorders` - Work orders, technicians
-5. `ositopolar_servicerequests` - Service requests
-6. `ositopolar_subscriptions` - Plans, payments
-7. `ositopolar_notifications` - Email notifications
-8. `ositopolar_analytics` - Analytics data
-
-### Running Migrations
-
-After first startup, run migrations for each service:
-
-```bash
-# IAM Service
-docker exec -it ositopolar-iam dotnet ef database update
-
-# Profiles Service
-docker exec -it ositopolar-profiles dotnet ef database update
-
-# Repeat for all services...
-```
-
-## Common Commands
-
-### View Logs
-
-```bash
-# All services
+# Ver logs de todos los servicios
 docker-compose logs -f
 
-# Specific service
+# Ver logs de un servicio específico
 docker-compose logs -f iam-service
-docker-compose logs -f api-gateway
+docker logs ositopolar-notifications -f
 
-# Last 100 lines
-docker-compose logs --tail=100 iam-service
-```
-
-### Restart Services
-
-```bash
-# Restart all
-docker-compose restart
-
-# Restart specific service
-docker-compose restart iam-service
-```
-
-### Stop Services
-
-```bash
-# Stop all containers
+# Detener servicios
 docker-compose down
 
-# Stop and remove volumes (WARNING: Deletes database data!)
+# Detener y eliminar volúmenes
 docker-compose down -v
-```
 
-### Rebuild Service
+# Reiniciar un servicio específico
+docker-compose restart notifications-service
 
-```bash
-# Rebuild specific service
-docker-compose build iam-service
+# Rebuild un servicio específico
+docker-compose up -d --build notifications-service
 
-# Rebuild and restart
-docker-compose up -d --build iam-service
-```
-
-### Check Service Status
-
-```bash
+# Ver estado de contenedores
 docker-compose ps
+docker ps
 ```
 
-### Access MySQL
+### Git
 
 ```bash
-# Connect to MySQL container
-docker exec -it ositopolar-mysql mysql -uroot -pOsitoPolar2024!
-
-# Show databases
-SHOW DATABASES LIKE 'ositopolar%';
+# Actualizar todos los repos (ejecutar desde carpeta Microservicios)
+cd OsitoPolar.IAM.Service && git pull && cd ..
+cd OsitoPolar.Profiles.Service && git pull && cd ..
+cd OsitoPolar.Equipment.Service && git pull && cd ..
+cd OsitoPolar.WorkOrders.Service && git pull && cd ..
+cd OsitoPolar.ServiceRequests.Service && git pull && cd ..
+cd OsitoPolar.Subscriptions.Service && git pull && cd ..
+cd OsitoPolar.Notifications.Service && git pull && cd ..
+cd OsitoPolar.Analytics.Service && git pull && cd ..
+cd OsitoPolar.ApiGateway && git pull && cd ..
+cd OsitoPolar-Infrastructure && git pull && cd ..
 ```
 
-## Troubleshooting
+---
 
-### Service Won't Start
+## 🛠 Tecnologías
 
-1. Check logs: `docker-compose logs -f <service-name>`
-2. Verify database connection: Ensure MySQL is healthy
-3. Check environment variables in docker-compose.yml
-4. Rebuild image: `docker-compose build <service-name>`
+### Backend
+- **.NET 9.0** - Framework principal
+- **ASP.NET Core** - Web API
+- **Entity Framework Core 9.0** - ORM
+- **MySQL 8.0** - Base de datos
 
-### Database Connection Errors
+### Microservices Infrastructure
+- **Docker** - Containerización
+- **Docker Compose** - Orquestación local
+- **Ocelot** - API Gateway
+- **MassTransit 8.5** - Message broker abstraction
+- **RabbitMQ 3.13** - Message broker
 
-1. Wait for MySQL health check: Takes 30-60 seconds after startup
-2. Check MySQL logs: `docker-compose logs mysql`
-3. Verify connection string uses hostname `mysql` (not `localhost`)
-4. Ensure databases were created: Check `mysql-init/01-create-databases.sql`
+### External Services
+- **MailerSend** - Proveedor de emails
+- **Stripe** - Procesamiento de pagos
 
-### Port Conflicts
+### Patterns & Architecture
+- **Domain-Driven Design (DDD)**
+- **CQRS** (Command Query Responsibility Segregation)
+- **Event-Driven Architecture**
+- **RESTful API**
 
-If ports are already in use:
+---
 
-1. Check what's using the port: `netstat -ano | findstr :8080`
-2. Stop conflicting service or change port in docker-compose.yml
-3. Restart: `docker-compose down && docker-compose up -d`
+## 🔥 Troubleshooting
 
-### Image Build Failures
+### Error: "ERR_EMPTY_RESPONSE" en Swagger
 
-1. Clear Docker cache: `docker-compose build --no-cache`
-2. Verify Dockerfile paths in docker-compose.yml
-3. Check .NET SDK version in Dockerfiles (should be 9.0)
+**Causa**: El servicio no está levantado correctamente.
 
-## Performance Tips
-
-### Development Mode
-
-```yaml
-# In docker-compose.yml, uncomment for faster rebuilds:
-volumes:
-  - ../OsitoPolar.IAM.Service/IAM.API:/app
-```
-
-### Production Mode
-
+**Solución**:
 ```bash
-# Set environment to Production
-ASPNETCORE_ENVIRONMENT=Production docker-compose up -d
+# Ver logs del servicio
+docker logs ositopolar-<nombre-servicio>
+
+# Reiniciar el servicio
+docker-compose restart <nombre-servicio>
 ```
 
-## Azure Deployment
+### Error: "Can't connect to MySQL server"
 
-### Prerequisites
+**Causa**: MySQL no está corriendo o la contraseña es incorrecta.
 
-- Azure subscription
-- Azure CLI installed
-- Azure Container Registry (ACR)
+**Solución**:
+1. Verificar que MySQL esté corriendo en `localhost:3306`
+2. Verificar credenciales: `root` / `12345678`
+3. Actualizar `docker-compose.yml` si usas otras credenciales
 
-### Steps
+### Error: "Port is already allocated"
 
-1. Build and tag images:
+**Causa**: Otro proceso está usando el puerto.
+
+**Solución**:
 ```bash
-docker-compose build
-docker tag ositopolar-api-gateway:latest yourregistry.azurecr.io/api-gateway:latest
-docker tag ositopolar-iam-service:latest yourregistry.azurecr.io/iam-service:latest
-# ...tag all services
+# Ver qué está usando el puerto
+netstat -ano | findstr :5001
+
+# Matar el proceso o cambiar el puerto en docker-compose.yml
 ```
 
-2. Push to ACR:
-```bash
-az acr login --name yourregistry
-docker push yourregistry.azurecr.io/api-gateway:latest
-docker push yourregistry.azurecr.io/iam-service:latest
-# ...push all services
-```
+### Los contenedores no se comunican entre sí
 
-3. Deploy to Azure Container Apps or App Service
+**Causa**: Están usando IPs en lugar de nombres de servicio.
 
-## Security Notes
+**Solución**: Verificar que en el código se usen los nombres de servicio (ej: `http://profiles-service:8080` en lugar de `http://localhost:5002`)
 
-- **NEVER** commit `.env` file
-- Change default passwords in production
-- Generate new JWT secret: `openssl rand -base64 32`
-- Use Azure Key Vault for production secrets
-- Enable HTTPS in production
-- Configure firewall rules for MySQL
+---
 
-## Support
+## 👥 Equipo
 
-For issues or questions:
-1. Check logs: `docker-compose logs -f`
-2. Review documentation in each microservice repo
-3. Check Phase 2 HTTP Migration Guide
-4. Contact development team
+Organización: **Inteligencia-Artesanal-FunArqui**
 
-## License
+---
 
-Proprietary - OsitoPolar Platform
+## 📄 Licencia
+
+Private - Uso educativo
+
+---
+
+## 📞 Soporte
+
+Para problemas o preguntas:
+1. Revisar la sección [Troubleshooting](#-troubleshooting)
+2. Revisar los logs: `docker-compose logs -f`
+3. Contactar al equipo de desarrollo
