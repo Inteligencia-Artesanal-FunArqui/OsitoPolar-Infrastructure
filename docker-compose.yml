@@ -1,0 +1,449 @@
+# ==============================================================================
+# Docker Compose - OsitoPolar Microservices Architecture
+# ==============================================================================
+#
+# This file orchestrates the complete microservices infrastructure:
+# - 8 Microservices (IAM, Profiles, Equipment, WorkOrders, ServiceRequests,
+#                    Subscriptions, Notifications, Analytics)
+# - API Gateway (Ocelot)
+# - MySQL 8.0 Database
+# - Private network for inter-service communication
+# - Persistent volumes for database data
+#
+# USAGE:
+# - Development: docker-compose up -d
+# - View logs: docker-compose logs -f
+# - Stop: docker-compose down
+#
+# AZURE DEPLOYMENT:
+# 1. Build: docker-compose build
+# 2. Tag images for ACR
+# 3. Push to Azure Container Registry
+# 4. Deploy to Azure Container Apps
+# ==============================================================================
+
+version: '3.8'
+
+services:
+  # ==============================================================================
+  # MySQL Database Service - COMMENTED OUT (Using local MySQL on host)
+  # ==============================================================================
+  # NOTE: Using local MySQL on Windows host (localhost:3306)
+  # All services connect via host.docker.internal:3306
+  #
+  # mysql:
+  #   image: mysql:8.0
+  #   container_name: ositopolar-mysql
+  #   restart: unless-stopped
+  #
+  #   environment:
+  #     MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-OsitoPolar2024!}
+  #     TZ: America/Lima
+  #
+  #   ports:
+  #     - "3306:3306"
+  #
+  #   volumes:
+  #     - mysql_data:/var/lib/mysql
+  #     - ./mysql-init:/docker-entrypoint-initdb.d
+  #
+  #   healthcheck:
+  #     test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-OsitoPolar2024!}"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+  #     start_period: 30s
+  #
+  #   networks:
+  #     - ositopolar-network
+
+  # ==============================================================================
+  # API Gateway Service (Ocelot) - Port 8080
+  # ==============================================================================
+  api-gateway:
+    build:
+      context: ../OsitoPolar.ApiGateway/API-Gateway
+      dockerfile: API-Gateway/Dockerfile
+    image: ositopolar-api-gateway:latest
+    container_name: ositopolar-api-gateway
+    restart: unless-stopped
+
+    ports:
+      - "8080:8080"
+
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      ASPNETCORE_URLS: http://+:8080
+      TZ: America/Lima
+
+    depends_on:
+      iam-service:
+        condition: service_started
+      profiles-service:
+        condition: service_started
+      equipment-service:
+        condition: service_started
+      workorders-service:
+        condition: service_started
+      servicerequests-service:
+        condition: service_started
+      subscriptions-service:
+        condition: service_started
+      notifications-service:
+        condition: service_started
+      analytics-service:
+        condition: service_started
+
+    networks:
+      - ositopolar-network
+
+  # ==============================================================================
+  # IAM Service (Identity & Access Management) - Port 5001
+  # ==============================================================================
+  iam-service:
+    build:
+      context: ../OsitoPolar.IAM.Service/IAM.API
+      dockerfile: IAM.API/Dockerfile
+    image: ositopolar-iam-service:latest
+    container_name: ositopolar-iam
+    restart: unless-stopped
+
+    ports:
+      - "5001:8080"
+
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      ASPNETCORE_URLS: http://+:8080
+
+      # Database (using host MySQL via host.docker.internal)
+      ConnectionStrings__DefaultConnection: "server=host.docker.internal;port=3306;database=ositopolar_iam;user=root;password=12345678;SslMode=None"
+
+      # JWT Token
+      TokenSettings__Secret: ${JWT_SECRET:-3xV9jK7s5L+8b2Qw4FdYzP0WQf8N6YhJd7M1pR2sT0U=}
+
+      # Service URLs for HTTP Communication
+      ServiceUrls__Profiles: http://profiles-service:8080
+      ServiceUrls__Subscriptions: http://subscriptions-service:8080
+      ServiceUrls__Notifications: http://notifications-service:8080
+
+      TZ: America/Lima
+
+    # No depends_on for MySQL since we're using host MySQL
+    # depends_on:
+    #   mysql:
+    #     condition: service_healthy
+
+    networks:
+      - ositopolar-network
+
+  # ==============================================================================
+  # Profiles Service - Port 5002
+  # ==============================================================================
+  profiles-service:
+    build:
+      context: ../OsitoPolar.Profiles.Service/Profiles.API
+      dockerfile: Profiles.API/Dockerfile
+    image: ositopolar-profiles-service:latest
+    container_name: ositopolar-profiles
+    restart: unless-stopped
+
+    ports:
+      - "5002:8080"
+
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      ASPNETCORE_URLS: http://+:8080
+
+      # Database
+      ConnectionStrings__DefaultConnection: "server=host.docker.internal;port=3306;database=ositopolar_profiles;user=root;password=12345678;SslMode=None"
+
+      # Service URLs
+      ServiceUrls__Subscriptions: http://subscriptions-service:8080
+      ServiceUrls__Notifications: http://notifications-service:8080
+
+      TZ: America/Lima
+
+    # No depends_on for MySQL since we're using host MySQL
+    # depends_on:
+    #   mysql:
+    #     condition: service_healthy
+
+    networks:
+      - ositopolar-network
+
+  # ==============================================================================
+  # Equipment Service - Port 5003
+  # ==============================================================================
+  equipment-service:
+    build:
+      context: ../OsitoPolar.Equipment.Service/Equipment.API
+      dockerfile: Equipment.API/Dockerfile
+    image: ositopolar-equipment-service:latest
+    container_name: ositopolar-equipment
+    restart: unless-stopped
+
+    ports:
+      - "5003:8080"
+
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      ASPNETCORE_URLS: http://+:8080
+
+      # Database
+      ConnectionStrings__DefaultConnection: "server=host.docker.internal;port=3306;database=ositopolar_equipment;user=root;password=12345678;SslMode=None"
+
+      # Service URLs
+      ServiceUrls__Profiles: http://profiles-service:8080
+      ServiceUrls__Notifications: http://notifications-service:8080
+
+      TZ: America/Lima
+
+    # No depends_on for MySQL since we're using host MySQL
+    # depends_on:
+    #   mysql:
+    #     condition: service_healthy
+
+    networks:
+      - ositopolar-network
+
+  # ==============================================================================
+  # Work Orders Service - Port 5004
+  # ==============================================================================
+  workorders-service:
+    build:
+      context: ../OsitoPolar.WorkOrders.Service/WorkOrders.API
+      dockerfile: WorkOrders.API/Dockerfile
+    image: ositopolar-workorders-service:latest
+    container_name: ositopolar-workorders
+    restart: unless-stopped
+
+    ports:
+      - "5004:8080"
+
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      ASPNETCORE_URLS: http://+:8080
+
+      # Database
+      ConnectionStrings__DefaultConnection: "server=host.docker.internal;port=3306;database=ositopolar_workorders;user=root;password=12345678;SslMode=None"
+
+      # Service URLs
+      ServiceUrls__Profiles: http://profiles-service:8080
+      ServiceUrls__Equipment: http://equipment-service:8080
+      ServiceUrls__Notifications: http://notifications-service:8080
+
+      TZ: America/Lima
+
+    # No depends_on for MySQL since we're using host MySQL
+    # depends_on:
+    #   mysql:
+    #     condition: service_healthy
+
+    networks:
+      - ositopolar-network
+
+  # ==============================================================================
+  # Service Requests Service - Port 5005
+  # ==============================================================================
+  servicerequests-service:
+    build:
+      context: ../OsitoPolar.ServiceRequests.Service/ServiceRequest.API
+      dockerfile: ServiceRequest.API/Dockerfile
+    image: ositopolar-servicerequests-service:latest
+    container_name: ositopolar-servicerequests
+    restart: unless-stopped
+
+    ports:
+      - "5005:8080"
+
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      ASPNETCORE_URLS: http://+:8080
+
+      # Database
+      ConnectionStrings__DefaultConnection: "server=host.docker.internal;port=3306;database=ositopolar_servicerequests;user=root;password=12345678;SslMode=None"
+
+      # Service URLs
+      ServiceUrls__Profiles: http://profiles-service:8080
+      ServiceUrls__Equipment: http://equipment-service:8080
+      ServiceUrls__WorkOrders: http://workorders-service:8080
+      ServiceUrls__Notifications: http://notifications-service:8080
+
+      TZ: America/Lima
+
+    # No depends_on for MySQL since we're using host MySQL
+    # depends_on:
+    #   mysql:
+    #     condition: service_healthy
+
+    networks:
+      - ositopolar-network
+
+  # ==============================================================================
+  # Subscriptions Service - Port 5006
+  # ==============================================================================
+  subscriptions-service:
+    build:
+      context: ../OsitoPolar.Subscriptions.Service/SubscriptionsAndPayment.API
+      dockerfile: SubscriptionsAndPayment.API/Dockerfile
+    image: ositopolar-subscriptions-service:latest
+    container_name: ositopolar-subscriptions
+    restart: unless-stopped
+
+    ports:
+      - "5006:8080"
+
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      ASPNETCORE_URLS: http://+:8080
+
+      # Database
+      ConnectionStrings__DefaultConnection: "server=host.docker.internal;port=3306;database=ositopolar_subscriptions;user=root;password=12345678;SslMode=None"
+
+      # Stripe Payment Provider
+      PaymentProviders__Stripe__SecretKey: ${STRIPE_SECRET_KEY}
+      PaymentProviders__Stripe__PublishableKey: ${STRIPE_PUBLISHABLE_KEY}
+      PaymentProviders__Stripe__WebhookSecret: ${STRIPE_WEBHOOK_SECRET}
+
+      TZ: America/Lima
+
+    # No depends_on for MySQL since we're using host MySQL
+    # depends_on:
+    #   mysql:
+    #     condition: service_healthy
+
+    networks:
+      - ositopolar-network
+
+  # ==============================================================================
+  # Notifications Service - Port 5007
+  # ==============================================================================
+  notifications-service:
+    build:
+      context: ../OsitoPolar.Notifications.Service/Notifications.API
+      dockerfile: Notifications.API/Dockerfile
+    image: ositopolar-notifications-service:latest
+    container_name: ositopolar-notifications
+    restart: unless-stopped
+
+    ports:
+      - "5007:8080"
+
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      ASPNETCORE_URLS: http://+:8080
+
+      # Database
+      ConnectionStrings__DefaultConnection: "server=host.docker.internal;port=3306;database=ositopolar_notifications;user=root;password=12345678;SslMode=None"
+
+      # Email Provider (MailerSend)
+      EmailProviders__MailerSend__SmtpHost: smtp.mailersend.net
+      EmailProviders__MailerSend__SmtpPort: 587
+      EmailProviders__MailerSend__SmtpUsername: ${MAILERSEND_USERNAME}
+      EmailProviders__MailerSend__SmtpPassword: ${MAILERSEND_PASSWORD}
+      EmailProviders__MailerSend__FromEmail: ${MAILERSEND_FROM_EMAIL}
+      EmailProviders__MailerSend__FromName: "OsitoPolar"
+      EmailProviders__MailerSend__EnableSsl: "true"
+
+      TZ: America/Lima
+
+    # No depends_on for MySQL since we're using host MySQL
+    # depends_on:
+    #   mysql:
+    #     condition: service_healthy
+
+    networks:
+      - ositopolar-network
+
+  # ==============================================================================
+  # Analytics Service - Port 5008
+  # ==============================================================================
+  analytics-service:
+    build:
+      context: ../OsitoPolar.Analytics.Service/Analytics.API
+      dockerfile: Analytics.API/Dockerfile
+    image: ositopolar-analytics-service:latest
+    container_name: ositopolar-analytics
+    restart: unless-stopped
+
+    ports:
+      - "5008:8080"
+
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      ASPNETCORE_URLS: http://+:8080
+
+      # Database
+      ConnectionStrings__DefaultConnection: "server=host.docker.internal;port=3306;database=ositopolar_analytics;user=root;password=12345678;SslMode=None"
+
+      # Service URLs
+      ServiceUrls__Profiles: http://profiles-service:8080
+      ServiceUrls__Equipment: http://equipment-service:8080
+      ServiceUrls__WorkOrders: http://workorders-service:8080
+      ServiceUrls__Subscriptions: http://subscriptions-service:8080
+
+      TZ: America/Lima
+
+    # No depends_on for MySQL since we're using host MySQL
+    # depends_on:
+    #   mysql:
+    #     condition: service_healthy
+
+    networks:
+      - ositopolar-network
+
+  # ==============================================================================
+  # RabbitMQ Message Broker - Port 5672 (AMQP), Port 15672 (Management UI)
+  # ==============================================================================
+  rabbitmq:
+    image: rabbitmq:3.13-management-alpine
+    container_name: ositopolar-rabbitmq
+    restart: unless-stopped
+
+    ports:
+      - "5672:5672"   # AMQP protocol port
+      - "15672:15672" # Management UI
+
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-ositopolar}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-OsitoPolar2024!}
+      RABBITMQ_DEFAULT_VHOST: ${RABBITMQ_VHOST:-/ositopolar}
+      TZ: America/Lima
+
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+      - rabbitmq_logs:/var/log/rabbitmq
+
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+    networks:
+      - ositopolar-network
+
+# ==============================================================================
+# Networks
+# ==============================================================================
+networks:
+  ositopolar-network:
+    driver: bridge
+    name: ositopolar-network
+
+# ==============================================================================
+# Volumes (Persistent Storage)
+# ==============================================================================
+volumes:
+  mysql_data:
+    driver: local
+    name: ositopolar-mysql-data
+
+  rabbitmq_data:
+    driver: local
+    name: ositopolar-rabbitmq-data
+
+  rabbitmq_logs:
+    driver: local
+    name: ositopolar-rabbitmq-logs
