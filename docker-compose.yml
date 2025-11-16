@@ -116,7 +116,7 @@ services:
       ASPNETCORE_URLS: http://+:8080
 
       # Database (using host MySQL via host.docker.internal)
-      ConnectionStrings__DefaultConnection: "server=host.docker.internal;port=3306;database=ositopolar_iam;user=root;password=12345678;SslMode=None"
+      ConnectionStrings__DefaultConnection: "server=${MYSQL_HOST:-host.docker.internal};port=${MYSQL_PORT:-3306};database=ositopolar_iam;user=${MYSQL_USER:-root};password=${MYSQL_PASSWORD:-12345678};SslMode=None"
 
       # JWT Token
       TokenSettings__Secret: ${JWT_SECRET:-3xV9jK7s5L+8b2Qw4FdYzP0WQf8N6YhJd7M1pR2sT0U=}
@@ -155,7 +155,7 @@ services:
       ASPNETCORE_URLS: http://+:8080
 
       # Database
-      ConnectionStrings__DefaultConnection: "server=host.docker.internal;port=3306;database=ositopolar_profiles;user=root;password=12345678;SslMode=None"
+      ConnectionStrings__DefaultConnection: "server=${MYSQL_HOST:-host.docker.internal};port=${MYSQL_PORT:-3306};database=ositopolar_profiles;user=${MYSQL_USER:-root};password=${MYSQL_PASSWORD:-12345678};SslMode=None"
 
       # Service URLs
       ServiceUrls__Subscriptions: http://subscriptions-service:8080
@@ -190,7 +190,7 @@ services:
       ASPNETCORE_URLS: http://+:8080
 
       # Database
-      ConnectionStrings__DefaultConnection: "server=host.docker.internal;port=3306;database=ositopolar_equipment;user=root;password=12345678;SslMode=None"
+      ConnectionStrings__DefaultConnection: "server=${MYSQL_HOST:-host.docker.internal};port=${MYSQL_PORT:-3306};database=ositopolar_equipment;user=${MYSQL_USER:-root};password=${MYSQL_PASSWORD:-12345678};SslMode=None"
 
       # Service URLs
       ServiceUrls__Profiles: http://profiles-service:8080
@@ -225,7 +225,7 @@ services:
       ASPNETCORE_URLS: http://+:8080
 
       # Database
-      ConnectionStrings__DefaultConnection: "server=host.docker.internal;port=3306;database=ositopolar_workorders;user=root;password=12345678;SslMode=None"
+      ConnectionStrings__DefaultConnection: "server=${MYSQL_HOST:-host.docker.internal};port=${MYSQL_PORT:-3306};database=ositopolar_workorders;user=${MYSQL_USER:-root};password=${MYSQL_PASSWORD:-12345678};SslMode=None"
 
       # Service URLs
       ServiceUrls__Profiles: http://profiles-service:8080
@@ -261,7 +261,7 @@ services:
       ASPNETCORE_URLS: http://+:8080
 
       # Database
-      ConnectionStrings__DefaultConnection: "server=host.docker.internal;port=3306;database=ositopolar_servicerequests;user=root;password=12345678;SslMode=None"
+      ConnectionStrings__DefaultConnection: "server=${MYSQL_HOST:-host.docker.internal};port=${MYSQL_PORT:-3306};database=ositopolar_servicerequests;user=${MYSQL_USER:-root};password=${MYSQL_PASSWORD:-12345678};SslMode=None"
 
       # Service URLs
       ServiceUrls__Profiles: http://profiles-service:8080
@@ -298,12 +298,12 @@ services:
       ASPNETCORE_URLS: http://+:8080
 
       # Database
-      ConnectionStrings__DefaultConnection: "server=host.docker.internal;port=3306;database=ositopolar_subscriptions;user=root;password=12345678;SslMode=None"
+      ConnectionStrings__DefaultConnection: "server=${MYSQL_HOST:-host.docker.internal};port=${MYSQL_PORT:-3306};database=ositopolar_subscriptions;user=${MYSQL_USER:-root};password=${MYSQL_PASSWORD:-12345678};SslMode=None"
 
       # Stripe Payment Provider
-      PaymentProviders__Stripe__SecretKey: ${STRIPE_SECRET_KEY}
-      PaymentProviders__Stripe__PublishableKey: ${STRIPE_PUBLISHABLE_KEY}
-      PaymentProviders__Stripe__WebhookSecret: ${STRIPE_WEBHOOK_SECRET}
+      PaymentProviders__Stripe__SecretKey: ${STRIPE_SECRET_KEY:-}
+      PaymentProviders__Stripe__PublishableKey: ${STRIPE_PUBLISHABLE_KEY:-}
+      PaymentProviders__Stripe__WebhookSecret: ${STRIPE_WEBHOOK_SECRET:-}
 
       TZ: America/Lima
 
@@ -334,15 +334,15 @@ services:
       ASPNETCORE_URLS: http://+:8080
 
       # Database
-      ConnectionStrings__DefaultConnection: "server=host.docker.internal;port=3306;database=ositopolar_notifications;user=root;password=12345678;SslMode=None"
+      ConnectionStrings__DefaultConnection: "server=${MYSQL_HOST:-host.docker.internal};port=${MYSQL_PORT:-3306};database=ositopolar_notifications;user=${MYSQL_USER:-root};password=${MYSQL_PASSWORD:-12345678};SslMode=None"
 
       # Email Provider (MailerSend)
-      EmailProviders__MailerSend__SmtpHost: smtp.mailersend.net
-      EmailProviders__MailerSend__SmtpPort: 587
-      EmailProviders__MailerSend__SmtpUsername: ${MAILERSEND_USERNAME}
-      EmailProviders__MailerSend__SmtpPassword: ${MAILERSEND_PASSWORD}
-      EmailProviders__MailerSend__FromEmail: ${MAILERSEND_FROM_EMAIL}
-      EmailProviders__MailerSend__FromName: "OsitoPolar"
+      EmailProviders__MailerSend__SmtpHost: ${MAILERSEND_SMTP_HOST:-smtp.mailersend.net}
+      EmailProviders__MailerSend__SmtpPort: ${MAILERSEND_SMTP_PORT:-587}
+      EmailProviders__MailerSend__SmtpUsername: ${MAILERSEND_SMTP_USERNAME:-}
+      EmailProviders__MailerSend__SmtpPassword: ${MAILERSEND_SMTP_PASSWORD:-}
+      EmailProviders__MailerSend__FromEmail: ${MAILERSEND_FROM_EMAIL:-}
+      EmailProviders__MailerSend__FromName: ${MAILERSEND_FROM_NAME:-OsitoPolar}
       EmailProviders__MailerSend__EnableSsl: "true"
 
       TZ: America/Lima
@@ -374,7 +374,7 @@ services:
       ASPNETCORE_URLS: http://+:8080
 
       # Database
-      ConnectionStrings__DefaultConnection: "server=host.docker.internal;port=3306;database=ositopolar_analytics;user=root;password=12345678;SslMode=None"
+      ConnectionStrings__DefaultConnection: "server=${MYSQL_HOST:-host.docker.internal};port=${MYSQL_PORT:-3306};database=ositopolar_analytics;user=${MYSQL_USER:-root};password=${MYSQL_PASSWORD:-12345678};SslMode=None"
 
       # Service URLs
       ServiceUrls__Profiles: http://profiles-service:8080
