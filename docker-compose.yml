@@ -232,6 +232,12 @@ services:
       ServiceUrls__Equipment: http://equipment-service:8080
       ServiceUrls__Notifications: http://notifications-service:8080
 
+      # RabbitMQ Configuration
+      RabbitMQ__Host: rabbitmq
+      RabbitMQ__Port: 5672
+      RabbitMQ__Username: ${RABBITMQ_USER:-ositopolar}
+      RabbitMQ__Password: ${RABBITMQ_PASSWORD:-OsitoPolar2024!}
+
       TZ: America/Lima
 
     # No depends_on for MySQL since we're using host MySQL
@@ -268,6 +274,12 @@ services:
       ServiceUrls__Equipment: http://equipment-service:8080
       ServiceUrls__WorkOrders: http://workorders-service:8080
       ServiceUrls__Notifications: http://notifications-service:8080
+
+      # RabbitMQ Configuration
+      RabbitMQ__Host: rabbitmq
+      RabbitMQ__Port: 5672
+      RabbitMQ__Username: ${RABBITMQ_USER:-ositopolar}
+      RabbitMQ__Password: ${RABBITMQ_PASSWORD:-OsitoPolar2024!}
 
       TZ: America/Lima
 
