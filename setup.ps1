@@ -16,9 +16,10 @@ Write-Host ""
 
 # Check if running in correct directory
 $currentDir = Split-Path -Leaf (Get-Location)
-if ($currentDir -ne "OsitoPolar-Infrastructure") {
-    Write-Host "❌ Error: This script must be run from the OsitoPolar-Infrastructure directory" -ForegroundColor Red
-    Write-Host "Please navigate to the correct directory first" -ForegroundColor Yellow
+if ($currentDir -ne "OsitoPolar.Infrastructure") {
+    Write-Host "❌ Error: This script must be run from the OsitoPolar.Infrastructure directory" -ForegroundColor Red
+    Write-Host "Current directory: $currentDir" -ForegroundColor Yellow
+    Write-Host "Please navigate to C:\Users\josep\RiderProjects\Microservicios\OsitoPolar.Infrastructure first" -ForegroundColor Yellow
     exit 1
 }
 
@@ -68,41 +69,42 @@ Write-Host "     Note: This script assumes MySQL is running with user 'root' and
 Write-Host ""
 
 # ==============================================================================
-# Step 2: Clone repositories
+# Step 2: Verify microservices directories exist
 # ==============================================================================
-Write-Host "📥 Step 2: Cloning repositories..." -ForegroundColor Yellow
+Write-Host "📥 Step 2: Verifying microservices directories..." -ForegroundColor Yellow
 
-$repos = @(
-    @{Name="OsitoPolar.Shared.Events"; Target="OsitoPolar.Shared.Events"},
-    @{Name="BC-IAM"; Target="OsitoPolar.IAM.Service"},
-    @{Name="BC-Profiles"; Target="OsitoPolar.Profiles.Service"},
-    @{Name="BC-Equipment"; Target="OsitoPolar.Equipment.Service"},
-    @{Name="BC-WorkOrders"; Target="OsitoPolar.WorkOrders.Service"},
-    @{Name="BC-ServiceRequest"; Target="OsitoPolar.ServiceRequests.Service"},
-    @{Name="BC-Subscriptions"; Target="OsitoPolar.Subscriptions.Service"},
-    @{Name="BC-Notifications"; Target="OsitoPolar.Notifications.Service"},
-    @{Name="BC-Analytics"; Target="OsitoPolar.Analytics.Service"},
-    @{Name="OsitoPolar-Api-Gateway"; Target="OsitoPolar.ApiGateway"}
+$services = @(
+    "OsitoPolar.Shared.Events",
+    "OsitoPolar.IAM.Service",
+    "OsitoPolar.Profiles.Service",
+    "OsitoPolar.Equipment.Service",
+    "OsitoPolar.WorkOrders.Service",
+    "OsitoPolar.ServiceRequests.Service",
+    "OsitoPolar.Subscriptions.Service",
+    "OsitoPolar.Notifications.Service",
+    "OsitoPolar.Analytics.Service",
+    "OsitoPolar.ApiGateway"
 )
 
-foreach ($repo in $repos) {
-    $repoName = $repo.Name
-    $targetDir = $repo.Target
-
-    if (Test-Path $targetDir) {
-        Write-Host "  ⏭️  $targetDir already exists, pulling latest changes..." -ForegroundColor Cyan
-        Set-Location $targetDir
-        git pull
-        Set-Location $baseDir
+$allExist = $true
+foreach ($service in $services) {
+    if (Test-Path $service) {
+        Write-Host "  ✅ $service exists" -ForegroundColor Green
     } else {
-        Write-Host "  📦 Cloning $repoName as $targetDir..." -ForegroundColor Cyan
-        git clone "https://github.com/Inteligencia-Artesanal-FunArqui/$repoName.git" $targetDir
-        if ($LASTEXITCODE -ne 0) {
-            Write-Host "  ❌ Failed to clone $repoName. Make sure you have access to the repository." -ForegroundColor Red
-            exit 1
-        }
+        Write-Host "  ❌ $service NOT FOUND" -ForegroundColor Red
+        $allExist = $false
     }
-    Write-Host "  ✅ $targetDir ready" -ForegroundColor Green
+}
+
+if (-not $allExist) {
+    Write-Host ""
+    Write-Host "  ❌ Some microservices are missing. Please ensure all services are cloned." -ForegroundColor Red
+    Write-Host "  Expected directory structure:" -ForegroundColor Yellow
+    Write-Host "    Microservicios/" -ForegroundColor Gray
+    foreach ($service in $services) {
+        Write-Host "      - $service/" -ForegroundColor Gray
+    }
+    exit 1
 }
 
 Write-Host ""
@@ -112,7 +114,7 @@ Write-Host ""
 # ==============================================================================
 Write-Host "⚙️  Step 3: Setting up environment variables..." -ForegroundColor Yellow
 
-Set-Location "OsitoPolar-Infrastructure"
+Set-Location "OsitoPolar.Infrastructure"
 
 if (!(Test-Path ".env")) {
     Write-Host "  📝 Creating .env file from .env.example..." -ForegroundColor Cyan
@@ -179,7 +181,7 @@ Write-Host ""
 # ==============================================================================
 Write-Host "🐳 Step 5: Building and starting Docker containers..." -ForegroundColor Yellow
 
-Set-Location "OsitoPolar-Infrastructure"
+Set-Location "OsitoPolar.Infrastructure"
 
 Write-Host "  📦 This will take several minutes on first run..." -ForegroundColor Cyan
 Write-Host ""

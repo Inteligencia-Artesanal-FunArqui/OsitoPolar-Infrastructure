@@ -62,8 +62,8 @@ services:
   # ==============================================================================
   api-gateway:
     build:
-      context: ../OsitoPolar.ApiGateway/API-Gateway
-      dockerfile: API-Gateway/Dockerfile
+      context: ..
+      dockerfile: OsitoPolar.ApiGateway/API-Gateway/API-Gateway/Dockerfile
     image: ositopolar-api-gateway:latest
     container_name: ositopolar-api-gateway
     restart: unless-stopped
@@ -102,8 +102,8 @@ services:
   # ==============================================================================
   iam-service:
     build:
-      context: ../OsitoPolar.IAM.Service/IAM.API
-      dockerfile: IAM.API/Dockerfile
+      context: ..
+      dockerfile: OsitoPolar.IAM.Service/IAM.API/IAM.API/Dockerfile
     image: ositopolar-iam-service:latest
     container_name: ositopolar-iam
     restart: unless-stopped
@@ -122,9 +122,17 @@ services:
       TokenSettings__Secret: ${JWT_SECRET:-3xV9jK7s5L+8b2Qw4FdYzP0WQf8N6YhJd7M1pR2sT0U=}
 
       # Service URLs for HTTP Communication
-      ServiceUrls__Profiles: http://profiles-service:8080
-      ServiceUrls__Subscriptions: http://subscriptions-service:8080
-      ServiceUrls__Notifications: http://notifications-service:8080
+      ServiceUrls__ProfilesService: http://profiles-service:8080
+      ServiceUrls__SubscriptionsService: http://subscriptions-service:8080
+      ServiceUrls__NotificationsService: http://notifications-service:8080
+      ServiceUrls__EquipmentService: http://equipment-service:8080
+      ServiceUrls__ServiceRequestsService: http://servicerequests-service:8080
+
+      # RabbitMQ Configuration
+      RabbitMQ__Host: rabbitmq
+      RabbitMQ__Port: 5672
+      RabbitMQ__Username: ${RABBITMQ_USER:-ositopolar}
+      RabbitMQ__Password: ${RABBITMQ_PASSWORD:-OsitoPolar2024!}
 
       TZ: America/Lima
 
@@ -141,8 +149,8 @@ services:
   # ==============================================================================
   profiles-service:
     build:
-      context: ../OsitoPolar.Profiles.Service/Profiles.API
-      dockerfile: Profiles.API/Dockerfile
+      context: ..
+      dockerfile: OsitoPolar.Profiles.Service/Profiles.API/Profiles.API/Dockerfile
     image: ositopolar-profiles-service:latest
     container_name: ositopolar-profiles
     restart: unless-stopped
@@ -158,8 +166,15 @@ services:
       ConnectionStrings__DefaultConnection: "server=${MYSQL_HOST:-host.docker.internal};port=${MYSQL_PORT:-3306};database=ositopolar_profiles;user=${MYSQL_USER:-root};password=${MYSQL_PASSWORD:-12345678};SslMode=None"
 
       # Service URLs
-      ServiceUrls__Subscriptions: http://subscriptions-service:8080
-      ServiceUrls__Notifications: http://notifications-service:8080
+      ServiceUrls__IAMService: http://iam-service:8080
+      ServiceUrls__SubscriptionsService: http://subscriptions-service:8080
+      ServiceUrls__NotificationsService: http://notifications-service:8080
+
+      # RabbitMQ Configuration
+      RabbitMQ__Host: rabbitmq
+      RabbitMQ__Port: 5672
+      RabbitMQ__Username: ${RABBITMQ_USER:-ositopolar}
+      RabbitMQ__Password: ${RABBITMQ_PASSWORD:-OsitoPolar2024!}
 
       TZ: America/Lima
 
@@ -176,8 +191,8 @@ services:
   # ==============================================================================
   equipment-service:
     build:
-      context: ../OsitoPolar.Equipment.Service/Equipment.API
-      dockerfile: Equipment.API/Dockerfile
+      context: ..
+      dockerfile: OsitoPolar.Equipment.Service/Equipment.API/Equipment.API/Dockerfile
     image: ositopolar-equipment-service:latest
     container_name: ositopolar-equipment
     restart: unless-stopped
@@ -211,8 +226,8 @@ services:
   # ==============================================================================
   workorders-service:
     build:
-      context: ../OsitoPolar.WorkOrders.Service/WorkOrders.API
-      dockerfile: WorkOrders.API/Dockerfile
+      context: ..
+      dockerfile: OsitoPolar.WorkOrders.Service/WorkOrders.API/WorkOrders.API/Dockerfile
     image: ositopolar-workorders-service:latest
     container_name: ositopolar-workorders
     restart: unless-stopped
@@ -253,8 +268,8 @@ services:
   # ==============================================================================
   servicerequests-service:
     build:
-      context: ../OsitoPolar.ServiceRequests.Service/ServiceRequest.API
-      dockerfile: ServiceRequest.API/Dockerfile
+      context: ..
+      dockerfile: OsitoPolar.ServiceRequests.Service/ServiceRequest.API/ServiceRequest.API/Dockerfile
     image: ositopolar-servicerequests-service:latest
     container_name: ositopolar-servicerequests
     restart: unless-stopped
@@ -296,8 +311,8 @@ services:
   # ==============================================================================
   subscriptions-service:
     build:
-      context: ../OsitoPolar.Subscriptions.Service/SubscriptionsAndPayment.API
-      dockerfile: SubscriptionsAndPayment.API/Dockerfile
+      context: ..
+      dockerfile: OsitoPolar.Subscriptions.Service/SubscriptionsAndPayment.API/SubscriptionsAndPayment.API/Dockerfile
     image: ositopolar-subscriptions-service:latest
     container_name: ositopolar-subscriptions
     restart: unless-stopped
@@ -332,8 +347,8 @@ services:
   # ==============================================================================
   notifications-service:
     build:
-      context: ../OsitoPolar.Notifications.Service/Notifications.API
-      dockerfile: Notifications.API/Dockerfile
+      context: ..
+      dockerfile: OsitoPolar.Notifications.Service/Notifications.API/Notifications.API/Dockerfile
     image: ositopolar-notifications-service:latest
     container_name: ositopolar-notifications
     restart: unless-stopped
@@ -372,8 +387,8 @@ services:
   # ==============================================================================
   analytics-service:
     build:
-      context: ../OsitoPolar.Analytics.Service/Analytics.API
-      dockerfile: Analytics.API/Dockerfile
+      context: ..
+      dockerfile: OsitoPolar.Analytics.Service/Analytics.API/Analytics.API/Dockerfile
     image: ositopolar-analytics-service:latest
     container_name: ositopolar-analytics
     restart: unless-stopped
