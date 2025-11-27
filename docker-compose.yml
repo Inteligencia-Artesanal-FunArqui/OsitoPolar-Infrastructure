@@ -116,7 +116,7 @@ services:
       ASPNETCORE_URLS: http://+:8080
 
       # Database (using host MySQL via host.docker.internal)
-      ConnectionStrings__DefaultConnection: "server=${MYSQL_HOST:-host.docker.internal};port=${MYSQL_PORT:-3306};database=ositopolar_iam;user=${MYSQL_USER:-root};password=${MYSQL_PASSWORD:-12345678};SslMode=None"
+      ConnectionStrings__DefaultConnection: "server=${MYSQL_HOST:-host.docker.internal};port=${MYSQL_PORT:-3306};database=ositopolar_iam;user=${MYSQL_USER:-root};password=${MYSQL_PASSWORD:-12345678};SslMode=None;AllowPublicKeyRetrieval=True"
 
       # JWT Token
       TokenSettings__Secret: ${JWT_SECRET:-3xV9jK7s5L+8b2Qw4FdYzP0WQf8N6YhJd7M1pR2sT0U=}
@@ -134,12 +134,16 @@ services:
       RabbitMQ__Username: ${RABBITMQ_USER:-ositopolar}
       RabbitMQ__Password: ${RABBITMQ_PASSWORD:-OsitoPolar2024!}
 
+      # Stripe Payment Provider (for registration checkout)
+      Stripe__SecretKey: ${STRIPE_SECRET_KEY:-}
+      Stripe__PublishableKey: ${STRIPE_PUBLISHABLE_KEY:-}
+      Stripe__WebhookSecret: ${STRIPE_WEBHOOK_SECRET:-}
+
       TZ: America/Lima
 
-    # No depends_on for MySQL since we're using host MySQL
-    # depends_on:
-    #   mysql:
-    #     condition: service_healthy
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
 
     networks:
       - ositopolar-network
@@ -163,7 +167,10 @@ services:
       ASPNETCORE_URLS: http://+:8080
 
       # Database
-      ConnectionStrings__DefaultConnection: "server=${MYSQL_HOST:-host.docker.internal};port=${MYSQL_PORT:-3306};database=ositopolar_profiles;user=${MYSQL_USER:-root};password=${MYSQL_PASSWORD:-12345678};SslMode=None"
+      ConnectionStrings__DefaultConnection: "server=${MYSQL_HOST:-host.docker.internal};port=${MYSQL_PORT:-3306};database=ositopolar_profiles;user=${MYSQL_USER:-root};password=${MYSQL_PASSWORD:-12345678};SslMode=None;AllowPublicKeyRetrieval=True"
+
+      # JWT Token - MUST be same secret as IAM Service
+      TokenSettings__Secret: ${JWT_SECRET:-3xV9jK7s5L+8b2Qw4FdYzP0WQf8N6YhJd7M1pR2sT0U=}
 
       # Service URLs
       ServiceUrls__IAMService: http://iam-service:8080
@@ -205,11 +212,14 @@ services:
       ASPNETCORE_URLS: http://+:8080
 
       # Database
-      ConnectionStrings__DefaultConnection: "server=${MYSQL_HOST:-host.docker.internal};port=${MYSQL_PORT:-3306};database=ositopolar_equipment;user=${MYSQL_USER:-root};password=${MYSQL_PASSWORD:-12345678};SslMode=None"
+      ConnectionStrings__DefaultConnection: "server=${MYSQL_HOST:-host.docker.internal};port=${MYSQL_PORT:-3306};database=ositopolar_equipment;user=${MYSQL_USER:-root};password=${MYSQL_PASSWORD:-12345678};SslMode=None;AllowPublicKeyRetrieval=True"
+
+      # JWT Token - MUST be same secret as IAM Service
+      TokenSettings__Secret: ${JWT_SECRET:-3xV9jK7s5L+8b2Qw4FdYzP0WQf8N6YhJd7M1pR2sT0U=}
 
       # Service URLs
-      ServiceUrls__Profiles: http://profiles-service:8080
-      ServiceUrls__Notifications: http://notifications-service:8080
+      ServiceUrls__ProfilesService: http://profiles-service:8080
+      ServiceUrls__NotificationsService: http://notifications-service:8080
 
       TZ: America/Lima
 
@@ -240,7 +250,10 @@ services:
       ASPNETCORE_URLS: http://+:8080
 
       # Database
-      ConnectionStrings__DefaultConnection: "server=${MYSQL_HOST:-host.docker.internal};port=${MYSQL_PORT:-3306};database=ositopolar_workorders;user=${MYSQL_USER:-root};password=${MYSQL_PASSWORD:-12345678};SslMode=None"
+      ConnectionStrings__DefaultConnection: "server=${MYSQL_HOST:-host.docker.internal};port=${MYSQL_PORT:-3306};database=ositopolar_workorders;user=${MYSQL_USER:-root};password=${MYSQL_PASSWORD:-12345678};SslMode=None;AllowPublicKeyRetrieval=True"
+
+      # JWT Token - MUST be same secret as IAM Service
+      TokenSettings__Secret: ${JWT_SECRET:-3xV9jK7s5L+8b2Qw4FdYzP0WQf8N6YhJd7M1pR2sT0U=}
 
       # Service URLs
       ServiceUrls__Profiles: http://profiles-service:8080
@@ -282,7 +295,10 @@ services:
       ASPNETCORE_URLS: http://+:8080
 
       # Database
-      ConnectionStrings__DefaultConnection: "server=${MYSQL_HOST:-host.docker.internal};port=${MYSQL_PORT:-3306};database=ositopolar_servicerequests;user=${MYSQL_USER:-root};password=${MYSQL_PASSWORD:-12345678};SslMode=None"
+      ConnectionStrings__DefaultConnection: "server=${MYSQL_HOST:-host.docker.internal};port=${MYSQL_PORT:-3306};database=ositopolar_servicerequests;user=${MYSQL_USER:-root};password=${MYSQL_PASSWORD:-12345678};SslMode=None;AllowPublicKeyRetrieval=True"
+
+      # JWT Token - MUST be same secret as IAM Service
+      TokenSettings__Secret: ${JWT_SECRET:-3xV9jK7s5L+8b2Qw4FdYzP0WQf8N6YhJd7M1pR2sT0U=}
 
       # Service URLs
       ServiceUrls__Profiles: http://profiles-service:8080
@@ -325,19 +341,33 @@ services:
       ASPNETCORE_URLS: http://+:8080
 
       # Database
-      ConnectionStrings__DefaultConnection: "server=${MYSQL_HOST:-host.docker.internal};port=${MYSQL_PORT:-3306};database=ositopolar_subscriptions;user=${MYSQL_USER:-root};password=${MYSQL_PASSWORD:-12345678};SslMode=None"
+      ConnectionStrings__DefaultConnection: "server=${MYSQL_HOST:-host.docker.internal};port=${MYSQL_PORT:-3306};database=ositopolar_subscriptions;user=${MYSQL_USER:-root};password=${MYSQL_PASSWORD:-12345678};SslMode=None;AllowPublicKeyRetrieval=True"
 
       # Stripe Payment Provider
       PaymentProviders__Stripe__SecretKey: ${STRIPE_SECRET_KEY:-}
       PaymentProviders__Stripe__PublishableKey: ${STRIPE_PUBLISHABLE_KEY:-}
       PaymentProviders__Stripe__WebhookSecret: ${STRIPE_WEBHOOK_SECRET:-}
 
+      # JWT Token - MUST be same secret as IAM Service
+      TokenSettings__Secret: ${JWT_SECRET:-3xV9jK7s5L+8b2Qw4FdYzP0WQf8N6YhJd7M1pR2sT0U=}
+
+      # Service URLs
+      ServiceUrls__Profiles: http://profiles-service:8080
+      ServiceUrls__WorkOrders: http://workorders-service:8080
+      ServiceUrls__ServiceRequests: http://servicerequests-service:8080
+      ServiceUrls__Notifications: http://notifications-service:8080
+
+      # RabbitMQ Configuration
+      RabbitMQ__Host: rabbitmq
+      RabbitMQ__Port: 5672
+      RabbitMQ__Username: ${RABBITMQ_USER:-ositopolar}
+      RabbitMQ__Password: ${RABBITMQ_PASSWORD:-OsitoPolar2024!}
+
       TZ: America/Lima
 
-    # No depends_on for MySQL since we're using host MySQL
-    # depends_on:
-    #   mysql:
-    #     condition: service_healthy
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
 
     networks:
       - ositopolar-network
@@ -361,7 +391,10 @@ services:
       ASPNETCORE_URLS: http://+:8080
 
       # Database
-      ConnectionStrings__DefaultConnection: "server=${MYSQL_HOST:-host.docker.internal};port=${MYSQL_PORT:-3306};database=ositopolar_notifications;user=${MYSQL_USER:-root};password=${MYSQL_PASSWORD:-12345678};SslMode=None"
+      ConnectionStrings__DefaultConnection: "server=${MYSQL_HOST:-host.docker.internal};port=${MYSQL_PORT:-3306};database=ositopolar_notifications;user=${MYSQL_USER:-root};password=${MYSQL_PASSWORD:-12345678};SslMode=None;AllowPublicKeyRetrieval=True"
+
+      # JWT Token - MUST be same secret as IAM Service
+      TokenSettings__Secret: ${JWT_SECRET:-3xV9jK7s5L+8b2Qw4FdYzP0WQf8N6YhJd7M1pR2sT0U=}
 
       # Email Provider (MailerSend)
       EmailProviders__MailerSend__SmtpHost: ${MAILERSEND_SMTP_HOST:-smtp.mailersend.net}
@@ -372,12 +405,22 @@ services:
       EmailProviders__MailerSend__FromName: ${MAILERSEND_FROM_NAME:-OsitoPolar}
       EmailProviders__MailerSend__EnableSsl: "true"
 
+      # Service URLs for HTTP Communication
+      ServiceUrls__ProfilesService: http://profiles-service:8080
+      ServiceUrls__EquipmentService: http://equipment-service:8080
+      ServiceUrls__ServiceRequestsService: http://servicerequests-service:8080
+
+      # RabbitMQ Configuration
+      RabbitMQ__Host: rabbitmq
+      RabbitMQ__Port: 5672
+      RabbitMQ__Username: ${RABBITMQ_USER:-ositopolar}
+      RabbitMQ__Password: ${RABBITMQ_PASSWORD:-OsitoPolar2024!}
+
       TZ: America/Lima
 
-    # No depends_on for MySQL since we're using host MySQL
-    # depends_on:
-    #   mysql:
-    #     condition: service_healthy
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
 
     networks:
       - ositopolar-network
@@ -401,7 +444,10 @@ services:
       ASPNETCORE_URLS: http://+:8080
 
       # Database
-      ConnectionStrings__DefaultConnection: "server=${MYSQL_HOST:-host.docker.internal};port=${MYSQL_PORT:-3306};database=ositopolar_analytics;user=${MYSQL_USER:-root};password=${MYSQL_PASSWORD:-12345678};SslMode=None"
+      ConnectionStrings__DefaultConnection: "server=${MYSQL_HOST:-host.docker.internal};port=${MYSQL_PORT:-3306};database=ositopolar_analytics;user=${MYSQL_USER:-root};password=${MYSQL_PASSWORD:-12345678};SslMode=None;AllowPublicKeyRetrieval=True"
+
+      # JWT Token - MUST be same secret as IAM Service
+      TokenSettings__Secret: ${JWT_SECRET:-3xV9jK7s5L+8b2Qw4FdYzP0WQf8N6YhJd7M1pR2sT0U=}
 
       # Service URLs
       ServiceUrls__Profiles: http://profiles-service:8080
@@ -434,7 +480,7 @@ services:
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-ositopolar}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-OsitoPolar2024!}
-      RABBITMQ_DEFAULT_VHOST: ${RABBITMQ_VHOST:-/ositopolar}
+      RABBITMQ_DEFAULT_VHOST: /
       TZ: America/Lima
 
     volumes:
