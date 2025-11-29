@@ -63,7 +63,7 @@ services:
   api-gateway:
     build:
       context: ..
-      dockerfile: OsitoPolar.ApiGateway/API-Gateway/API-Gateway/Dockerfile
+      dockerfile: OsitoPolar.ApiGateway/API-Gateway/Dockerfile
     image: ositopolar-api-gateway:latest
     container_name: ositopolar-api-gateway
     restart: unless-stopped
@@ -103,7 +103,7 @@ services:
   iam-service:
     build:
       context: ..
-      dockerfile: OsitoPolar.IAM.Service/IAM.API/IAM.API/Dockerfile
+      dockerfile: OsitoPolar.IAM.Service/IAM.API/Dockerfile
     image: ositopolar-iam-service:latest
     container_name: ositopolar-iam
     restart: unless-stopped
@@ -154,7 +154,7 @@ services:
   profiles-service:
     build:
       context: ..
-      dockerfile: OsitoPolar.Profiles.Service/Profiles.API/Profiles.API/Dockerfile
+      dockerfile: OsitoPolar.Profiles.Service/Profiles.API/Dockerfile
     image: ositopolar-profiles-service:latest
     container_name: ositopolar-profiles
     restart: unless-stopped
@@ -199,7 +199,7 @@ services:
   equipment-service:
     build:
       context: ..
-      dockerfile: OsitoPolar.Equipment.Service/Equipment.API/Equipment.API/Dockerfile
+      dockerfile: OsitoPolar.Equipment.Service/Equipment.API/Dockerfile
     image: ositopolar-equipment-service:latest
     container_name: ositopolar-equipment
     restart: unless-stopped
@@ -237,7 +237,7 @@ services:
   workorders-service:
     build:
       context: ..
-      dockerfile: OsitoPolar.WorkOrders.Service/WorkOrders.API/WorkOrders.API/Dockerfile
+      dockerfile: OsitoPolar.WorkOrders.Service/WorkOrders.API/Dockerfile
     image: ositopolar-workorders-service:latest
     container_name: ositopolar-workorders
     restart: unless-stopped
@@ -282,7 +282,7 @@ services:
   servicerequests-service:
     build:
       context: ..
-      dockerfile: OsitoPolar.ServiceRequests.Service/ServiceRequest.API/ServiceRequest.API/Dockerfile
+      dockerfile: OsitoPolar.ServiceRequests.Service/ServiceRequest.API/Dockerfile
     image: ositopolar-servicerequests-service:latest
     container_name: ositopolar-servicerequests
     restart: unless-stopped
@@ -328,7 +328,7 @@ services:
   subscriptions-service:
     build:
       context: ..
-      dockerfile: OsitoPolar.Subscriptions.Service/SubscriptionsAndPayment.API/SubscriptionsAndPayment.API/Dockerfile
+      dockerfile: OsitoPolar.Subscriptions.Service/SubscriptionsAndPayment.API/Dockerfile
     image: ositopolar-subscriptions-service:latest
     container_name: ositopolar-subscriptions
     restart: unless-stopped
@@ -378,7 +378,7 @@ services:
   notifications-service:
     build:
       context: ..
-      dockerfile: OsitoPolar.Notifications.Service/Notifications.API/Notifications.API/Dockerfile
+      dockerfile: OsitoPolar.Notifications.Service/Notifications.API/Dockerfile
     image: ositopolar-notifications-service:latest
     container_name: ositopolar-notifications
     restart: unless-stopped
@@ -431,7 +431,7 @@ services:
   analytics-service:
     build:
       context: ..
-      dockerfile: OsitoPolar.Analytics.Service/Analytics.API/Analytics.API/Dockerfile
+      dockerfile: OsitoPolar.Analytics.Service/Analytics.API/Dockerfile
     image: ositopolar-analytics-service:latest
     container_name: ositopolar-analytics
     restart: unless-stopped
