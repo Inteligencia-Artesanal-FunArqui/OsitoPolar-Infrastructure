@@ -217,6 +217,10 @@ services:
       ServiceUrls__ProfilesService: http://profiles-service:8080
       ServiceUrls__NotificationsService: http://notifications-service:8080
 
+      # Stripe Configuration (for rental payments)
+      PaymentProviders__Stripe__SecretKey: ${STRIPE_SECRET_KEY}
+      PaymentProviders__Stripe__PublishableKey: ${STRIPE_PUBLISHABLE_KEY}
+
       TZ: America/Lima
 
     depends_on:
