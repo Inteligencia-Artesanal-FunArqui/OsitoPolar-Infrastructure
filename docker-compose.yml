@@ -450,16 +450,24 @@ services:
       # JWT Token - MUST be same secret as IAM Service
       TokenSettings__Secret: ${JWT_SECRET:-3xV9jK7s5L+8b2Qw4FdYzP0WQf8N6YhJd7M1pR2sT0U=}
 
-      # Service URLs
-      ServiceUrls__Profiles: http://profiles-service:8080
-      ServiceUrls__Equipment: http://equipment-service:8080
-      ServiceUrls__WorkOrders: http://workorders-service:8080
-      ServiceUrls__Subscriptions: http://subscriptions-service:8080
+      # Service URLs - MUST match keys in Program.cs
+      ServiceUrls__ProfilesService: http://profiles-service:8080
+      ServiceUrls__EquipmentService: http://equipment-service:8080
+      ServiceUrls__WorkOrdersService: http://workorders-service:8080
+      ServiceUrls__SubscriptionsService: http://subscriptions-service:8080
+
+      # RabbitMQ Configuration
+      RabbitMQ__Host: rabbitmq
+      RabbitMQ__Port: 5672
+      RabbitMQ__Username: ${RABBITMQ_USER:-ositopolar}
+      RabbitMQ__Password: ${RABBITMQ_PASSWORD:-OsitoPolar2024!}
 
       TZ: America/Lima
 
     depends_on:
       mysql:
+        condition: service_healthy
+      rabbitmq:
         condition: service_healthy
 
     networks:
