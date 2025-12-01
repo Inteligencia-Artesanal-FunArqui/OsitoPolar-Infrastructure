@@ -340,10 +340,10 @@ services:
       # Database
       ConnectionStrings__DefaultConnection: "server=${MYSQL_HOST:-mysql};port=${MYSQL_PORT:-3306};database=ositopolar_subscriptions;user=${MYSQL_USER:-root};password=${MYSQL_PASSWORD:-OsitoPolar2024!};SslMode=None;AllowPublicKeyRetrieval=True"
 
-      # Stripe Payment Provider
-      PaymentProviders__Stripe__SecretKey: ${STRIPE_SECRET_KEY:-}
-      PaymentProviders__Stripe__PublishableKey: ${STRIPE_PUBLISHABLE_KEY:-}
-      PaymentProviders__Stripe__WebhookSecret: ${STRIPE_WEBHOOK_SECRET:-}
+      # Stripe Payment Provider (overrides appsettings.json)
+      Stripe__SecretKey: ${STRIPE_SECRET_KEY}
+      Stripe__PublishableKey: ${STRIPE_PUBLISHABLE_KEY}
+      Stripe__WebhookSecret: ${STRIPE_WEBHOOK_SECRET:-whsec_test_secret}
 
       # JWT Token - MUST be same secret as IAM Service
       TokenSettings__Secret: ${JWT_SECRET:-3xV9jK7s5L+8b2Qw4FdYzP0WQf8N6YhJd7M1pR2sT0U=}
