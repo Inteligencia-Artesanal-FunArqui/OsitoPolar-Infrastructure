@@ -1,0 +1,11 @@
+# app,repo,branch,project_dir_in_repo,project_name
+iam-service,BC-IAM,main,IAM.API,IAM.API
+profiles-service,BC-Profiles,dev,Profiles.API,Profiles.API
+equipment-service,BC-Equipment,dev,Equipment.API,Equipment.API
+workorders-service,BC-WorkOrders,dev,WorkOrders.API,WorkOrders.API
+servicerequests-service,BC-ServiceRequest,dev,ServiceRequest.API,ServiceRequest.API
+subscriptions-service,BC-Subscriptions,main,SubscriptionsAndPayment.API,SubscriptionsAndPayment.API
+notifications-service,BC-Notifications,dev,Notifications.API,Notifications.API
+analytics-service,BC-Analytics,main,Analytics.API/Analytics.API,Analytics.API
+api-gateway,OsitoPolar-Api-Gateway,dev,API-Gateway,API-Gateway
+frontend,OsitoPolar-Frontend,dev,.,-

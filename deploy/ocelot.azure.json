@@ -1,0 +1,655 @@
+{
+  "Routes": [
+    {
+      "UpstreamPathTemplate": "/api/v1/authentication",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE"
+      ],
+      "DownstreamPathTemplate": "/api/v1/authentication",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "iam-service.blackisland-01300cb2.centralus.azurecontainerapps.io",
+          "Port": 443
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/api/v1/authentication/{everything}",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE"
+      ],
+      "DownstreamPathTemplate": "/api/v1/authentication/{everything}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "iam-service.blackisland-01300cb2.centralus.azurecontainerapps.io",
+          "Port": 443
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/api/v1/users",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE"
+      ],
+      "DownstreamPathTemplate": "/api/v1/users",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "iam-service.blackisland-01300cb2.centralus.azurecontainerapps.io",
+          "Port": 443
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/api/v1/users/{everything}",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE"
+      ],
+      "DownstreamPathTemplate": "/api/v1/users/{everything}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "iam-service.blackisland-01300cb2.centralus.azurecontainerapps.io",
+          "Port": 443
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/api/v1/profiles",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE"
+      ],
+      "DownstreamPathTemplate": "/api/v1/profiles",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "profiles-service.blackisland-01300cb2.centralus.azurecontainerapps.io",
+          "Port": 443
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/api/v1/profiles/{everything}",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE"
+      ],
+      "DownstreamPathTemplate": "/api/v1/profiles/{everything}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "profiles-service.blackisland-01300cb2.centralus.azurecontainerapps.io",
+          "Port": 443
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/api/v1/equipments",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE"
+      ],
+      "DownstreamPathTemplate": "/api/v1/equipments",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "equipment-service.blackisland-01300cb2.centralus.azurecontainerapps.io",
+          "Port": 443
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/api/v1/equipments/{everything}",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE"
+      ],
+      "DownstreamPathTemplate": "/api/v1/equipments/{everything}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "equipment-service.blackisland-01300cb2.centralus.azurecontainerapps.io",
+          "Port": 443
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/api/v1/work-orders",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE"
+      ],
+      "DownstreamPathTemplate": "/api/v1/work-orders",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "workorders-service.blackisland-01300cb2.centralus.azurecontainerapps.io",
+          "Port": 443
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/api/v1/work-orders/{everything}",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE"
+      ],
+      "DownstreamPathTemplate": "/api/v1/work-orders/{everything}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "workorders-service.blackisland-01300cb2.centralus.azurecontainerapps.io",
+          "Port": 443
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/api/v1/technicians",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE"
+      ],
+      "DownstreamPathTemplate": "/api/v1/technicians",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "workorders-service.blackisland-01300cb2.centralus.azurecontainerapps.io",
+          "Port": 443
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/api/v1/technicians/{everything}",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE"
+      ],
+      "DownstreamPathTemplate": "/api/v1/technicians/{everything}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "workorders-service.blackisland-01300cb2.centralus.azurecontainerapps.io",
+          "Port": 443
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/api/v1/service-requests",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE"
+      ],
+      "DownstreamPathTemplate": "/api/v1/service-requests",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "servicerequests-service.blackisland-01300cb2.centralus.azurecontainerapps.io",
+          "Port": 443
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/api/v1/service-requests/{everything}",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE"
+      ],
+      "DownstreamPathTemplate": "/api/v1/service-requests/{everything}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "servicerequests-service.blackisland-01300cb2.centralus.azurecontainerapps.io",
+          "Port": 443
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/api/v1/subscriptions",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE"
+      ],
+      "DownstreamPathTemplate": "/api/v1/subscriptions",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "subscriptions-service.blackisland-01300cb2.centralus.azurecontainerapps.io",
+          "Port": 443
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/api/v1/subscriptions/{everything}",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE"
+      ],
+      "DownstreamPathTemplate": "/api/v1/subscriptions/{everything}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "subscriptions-service.blackisland-01300cb2.centralus.azurecontainerapps.io",
+          "Port": 443
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/api/v1/plans",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE"
+      ],
+      "DownstreamPathTemplate": "/api/v1/plans",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "subscriptions-service.blackisland-01300cb2.centralus.azurecontainerapps.io",
+          "Port": 443
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/api/v1/plans/{everything}",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE"
+      ],
+      "DownstreamPathTemplate": "/api/v1/plans/{everything}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "subscriptions-service.blackisland-01300cb2.centralus.azurecontainerapps.io",
+          "Port": 443
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/api/v1/payments",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE"
+      ],
+      "DownstreamPathTemplate": "/api/v1/payments",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "subscriptions-service.blackisland-01300cb2.centralus.azurecontainerapps.io",
+          "Port": 443
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/api/v1/payments/{everything}",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE"
+      ],
+      "DownstreamPathTemplate": "/api/v1/payments/{everything}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "subscriptions-service.blackisland-01300cb2.centralus.azurecontainerapps.io",
+          "Port": 443
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/api/v1/payment-history",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE"
+      ],
+      "DownstreamPathTemplate": "/api/v1/payment-history",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "subscriptions-service.blackisland-01300cb2.centralus.azurecontainerapps.io",
+          "Port": 443
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/api/v1/payment-history/{everything}",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE"
+      ],
+      "DownstreamPathTemplate": "/api/v1/payment-history/{everything}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "subscriptions-service.blackisland-01300cb2.centralus.azurecontainerapps.io",
+          "Port": 443
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/api/v1/service-payments",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE"
+      ],
+      "DownstreamPathTemplate": "/api/v1/service-payments",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "subscriptions-service.blackisland-01300cb2.centralus.azurecontainerapps.io",
+          "Port": 443
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/api/v1/service-payments/{everything}",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE"
+      ],
+      "DownstreamPathTemplate": "/api/v1/service-payments/{everything}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "subscriptions-service.blackisland-01300cb2.centralus.azurecontainerapps.io",
+          "Port": 443
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/api/v1/notifications",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE"
+      ],
+      "DownstreamPathTemplate": "/api/v1/notifications",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "notifications-service.blackisland-01300cb2.centralus.azurecontainerapps.io",
+          "Port": 443
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/api/v1/notifications/{everything}",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE"
+      ],
+      "DownstreamPathTemplate": "/api/v1/notifications/{everything}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "notifications-service.blackisland-01300cb2.centralus.azurecontainerapps.io",
+          "Port": 443
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/api/v1/analytics",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE"
+      ],
+      "DownstreamPathTemplate": "/api/v1/analytics",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "analytics-service.blackisland-01300cb2.centralus.azurecontainerapps.io",
+          "Port": 443
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/api/v1/analytics/{everything}",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE"
+      ],
+      "DownstreamPathTemplate": "/api/v1/analytics/{everything}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "analytics-service.blackisland-01300cb2.centralus.azurecontainerapps.io",
+          "Port": 443
+        }
+      ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/owners/{everything}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "profiles-service.blackisland-01300cb2.centralus.azurecontainerapps.io",
+          "Port": 443
+        }
+      ],
+      "UpstreamPathTemplate": "/api/v1/owners/{everything}",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE",
+        "PATCH"
+      ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/owners",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "profiles-service.blackisland-01300cb2.centralus.azurecontainerapps.io",
+          "Port": 443
+        }
+      ],
+      "UpstreamPathTemplate": "/api/v1/owners",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE",
+        "PATCH"
+      ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/providers/{everything}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "profiles-service.blackisland-01300cb2.centralus.azurecontainerapps.io",
+          "Port": 443
+        }
+      ],
+      "UpstreamPathTemplate": "/api/v1/providers/{everything}",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE",
+        "PATCH"
+      ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/providers",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "profiles-service.blackisland-01300cb2.centralus.azurecontainerapps.io",
+          "Port": 443
+        }
+      ],
+      "UpstreamPathTemplate": "/api/v1/providers",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE",
+        "PATCH"
+      ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/rental-equipment/{everything}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "equipment-service.blackisland-01300cb2.centralus.azurecontainerapps.io",
+          "Port": 443
+        }
+      ],
+      "UpstreamPathTemplate": "/api/v1/rental-equipment/{everything}",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE",
+        "PATCH"
+      ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/rental-equipment",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "equipment-service.blackisland-01300cb2.centralus.azurecontainerapps.io",
+          "Port": 443
+        }
+      ],
+      "UpstreamPathTemplate": "/api/v1/rental-equipment",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE",
+        "PATCH"
+      ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/equipment/{everything}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "equipment-service.blackisland-01300cb2.centralus.azurecontainerapps.io",
+          "Port": 443
+        }
+      ],
+      "UpstreamPathTemplate": "/api/v1/equipment/{everything}",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE",
+        "PATCH"
+      ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/equipment",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "equipment-service.blackisland-01300cb2.centralus.azurecontainerapps.io",
+          "Port": 443
+        }
+      ],
+      "UpstreamPathTemplate": "/api/v1/equipment",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE",
+        "PATCH"
+      ]
+    }
+  ],
+  "GlobalConfiguration": {
+    "BaseUrl": "http://localhost:8080"
+  }
+}

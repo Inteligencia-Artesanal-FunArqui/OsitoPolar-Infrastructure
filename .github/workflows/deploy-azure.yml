@@ -1,0 +1,147 @@
+name: Deploy to Azure
+
+# Despliega OsitoPolar en Azure Container Apps (backend) y Azure Static Web Apps (frontend).
+# - schedule: cada 15 min revisa la rama configurada de cada repo (deploy/services.csv) y
+#   reconstruye SOLO los servicios cuyo último commit no está desplegado todavía.
+# - workflow_dispatch: botón "Run workflow" (permite forzar uno, varios o todos).
+# - repository_dispatch (type "deploy"): otro repo puede pedir un despliegue inmediato
+#   enviando client_payload.service = "<app>" (opcional).
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+    inputs:
+      services:
+        description: 'Apps a desplegar separados por coma (ej: "equipment-service,frontend") o "all". Vacío = solo los que cambiaron.'
+        required: false
+        default: ""
+  repository_dispatch:
+    types: [deploy]
+
+permissions:
+  id-token: write   # OIDC hacia Azure (identidad administrada, sin contraseñas)
+  contents: read
+
+concurrency:
+  group: deploy-azure
+  cancel-in-progress: false
+
+env:
+  ORG: Inteligencia-Artesanal-FunArqui
+  RG: ositopolar-rg
+  ACR: ositopolaracr2026
+  SWA: ositopolar-frontend
+  CA_DOMAIN: blackisland-01300cb2.centralus.azurecontainerapps.io
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "9.0.x"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Decidir qué desplegar
+        id: plan
+        env:
+          FORCE: ${{ github.event.inputs.services || github.event.client_payload.service || '' }}
+        run: |
+          set -euo pipefail
+          az extension add --name containerapp --upgrade -y --only-show-errors >/dev/null
+          : > plan.txt
+          grep -v '^#' deploy/services.csv | while IFS=, read -r app repo branch dir proj; do
+            [ -z "$app" ] && continue
+            sha=$(git ls-remote "https://github.com/$ORG/$repo.git" "refs/heads/$branch" | cut -c1-12)
+            if [ "$app" = frontend ]; then
+              current=$(az staticwebapp appsettings list -n "$SWA" -g "$RG" --query "properties.DEPLOYED_SHA" -o tsv 2>/dev/null || true)
+            else
+              current=$(az containerapp show -n "$app" -g "$RG" --query "properties.template.containers[0].image" -o tsv | sed 's/.*://')
+            fi
+            want=no
+            if [ "$FORCE" = all ] || [[ ",$FORCE," == *",$app,"* ]]; then want=yes
+            elif [ -z "$FORCE" ] && [ "$current" != "$sha" ]; then want=yes; fi
+            echo "$app $repo@$branch sha=$sha desplegado=${current:-?} -> $want"
+            [ "$want" = yes ] && echo "$app,$repo,$branch,$dir,$proj,$sha" >> plan.txt
+          done
+          echo "count=$(wc -l < plan.txt)" >> "$GITHUB_OUTPUT"
+
+      - name: Preparar workspace (repos + Shared.Events + certificados)
+        if: steps.plan.outputs.count != '0'
+        env:
+          AIVEN_CA_PEM: ${{ secrets.AIVEN_CA_PEM }}
+        run: |
+          set -euo pipefail
+          mkdir -p ws/services ws/deploy-certs
+          git clone -q --depth 1 "https://github.com/$ORG/OsitoPolar.Shared.Events.git" ws/services/OsitoPolar.Shared.Events
+          cp -r ws/services/OsitoPolar.Shared.Events ws/OsitoPolar.Shared.Events
+          cp deploy/Directory.Build.props ws/
+          printf '%s\n' "$AIVEN_CA_PEM" > ws/deploy-certs/aiven-ca.pem
+          # Certificado cliente desechable: el driver MySQL de Oracle lo exige para validar la CA del servidor.
+          openssl req -x509 -newkey rsa:2048 -nodes -days 30 -subj "/CN=ositopolar-client" \
+            -keyout ws/deploy-certs/client-key.pem -out ws/deploy-certs/client-cert.pem 2>/dev/null
+          while IFS=, read -r app repo branch dir proj sha; do
+            [ -d "ws/services/$repo" ] || git clone -q --depth 1 -b "$branch" "https://github.com/$ORG/$repo.git" "ws/services/$repo"
+          done < plan.txt
+          if grep -q '^api-gateway,' plan.txt; then
+            cp deploy/ocelot.azure.json ws/services/OsitoPolar-Api-Gateway/API-Gateway/ocelot.json
+          fi
+
+      - name: Construir, subir y actualizar servicios
+        if: steps.plan.outputs.count != '0'
+        run: |
+          set -euo pipefail
+          export DOTNET_CONTAINER_REGISTRY_UNAME=00000000-0000-0000-0000-000000000000
+          export DOTNET_CONTAINER_REGISTRY_PWORD=$(az acr login -n "$ACR" --expose-token --query accessToken -o tsv --only-show-errors)
+          failed=""
+          while IFS=, read -r app repo branch dir proj sha; do
+            [ "$app" = frontend ] && continue
+            echo "::group::$app ($repo@$branch $sha)"
+            if dotnet publish "ws/services/$repo/$dir/$proj.csproj" -c Release /t:PublishContainer \
+                 -p:ContainerRegistry=$ACR.azurecr.io -p:ContainerRepository=$app -p:ContainerImageTag=$sha \
+                 -p:ContainerBaseImage=mcr.microsoft.com/dotnet/aspnet:9.0 \
+               && az containerapp update -n "$app" -g "$RG" --image "$ACR.azurecr.io/$app:$sha" --only-show-errors -o none; then
+              echo "OK $app"
+            else
+              echo "::error::Falló $app"; failed="$failed $app"
+            fi
+            echo "::endgroup::"
+          done < plan.txt
+          [ -z "$failed" ] || { echo "Fallaron:$failed"; exit 1; }
+
+      - name: Frontend (Static Web Apps)
+        if: steps.plan.outputs.count != '0'
+        run: |
+          set -euo pipefail
+          line=$(grep '^frontend,' plan.txt || true)
+          [ -z "$line" ] && { echo "Frontend sin cambios"; exit 0; }
+          IFS=, read -r app repo branch dir proj sha <<< "$line"
+          cd "ws/services/$repo"
+          cat > public/staticwebapp.config.json <<'JSON'
+          {"navigationFallback":{"rewrite":"/index.html","exclude":["/assets/*","/*.{css,js,png,jpg,jpeg,gif,svg,ico,webp,json,woff,woff2}"]}}
+          JSON
+          npm ci --no-audit --no-fund
+          VITE_API_BASE_URL="https://api-gateway.$CA_DOMAIN/api/v1" npm run build
+          export SWA_CLI_DEPLOYMENT_TOKEN=$(az staticwebapp secrets list -n "$SWA" -g "$RG" --query properties.apiKey -o tsv)
+          npx -y @azure/static-web-apps-cli@2.0.6 deploy ./dist --env production
+          az staticwebapp appsettings set -n "$SWA" -g "$RG" --setting-names "DEPLOYED_SHA=$sha" -o none
+
+      - name: Verificación
+        if: steps.plan.outputs.count != '0'
+        run: |
+          code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 120 "https://api-gateway.$CA_DOMAIN/api/v1/subscriptions/1")
+          echo "Gateway /api/v1/subscriptions/1 -> $code"
+          [ "$code" = 200 ]

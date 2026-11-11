@@ -1,0 +1,7 @@
+<Project>
+  <!-- Despliegue Azure: certificados para conexión TLS verificada (VerifyCA) a Aiven MySQL.
+       La carpeta deploy-certs se genera en el workflow (CA desde secreto + certificado cliente desechable). -->
+  <ItemGroup Condition="'$(UsingMicrosoftNETSdkWeb)' == 'true'">
+    <None Include="$(MSBuildThisFileDirectory)deploy-certs/*.pem" Link="certs/%(Filename)%(Extension)" CopyToPublishDirectory="Always" CopyToOutputDirectory="Never" />
+  </ItemGroup>
+</Project>
